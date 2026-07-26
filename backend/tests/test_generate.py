@@ -15,13 +15,13 @@ client = TestClient(app)
 
 
 def test_llm_unavailable_without_key(monkeypatch):
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("LLM_API_KEY", raising=False)
     assert generate.llm_available() is False
     assert generate.generate_answer("anything", ["a passage"]) is None
 
 
 def test_ask_falls_back_to_extractive_without_key(monkeypatch):
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("LLM_API_KEY", raising=False)
     text = "The Eiffel Tower is located in Paris, France."
     doc_id = client.post("/documents", data={"text": text}).json()["document_id"]
 
