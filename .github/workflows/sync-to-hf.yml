@@ -1,8 +1,8 @@
 name: Sync to Hugging Face Space
 
-# Mirrors the default branch to a Hugging Face Space on every push, so the live
-# demo tracks main. The Space builds the root Dockerfile (see README front
-# matter).
+# Mirrors the default branch to a Hugging Face Static Space on every push, so
+# the live demo tracks main. The Space builds the frontend (see the
+# app_build_command in the README front matter) and serves frontend/dist.
 #
 # One-time setup (GitHub → Settings → Secrets and variables → Actions):
 #   - Secret   HF_TOKEN     : a Hugging Face access token with write scope

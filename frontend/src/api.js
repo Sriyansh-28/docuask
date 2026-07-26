@@ -1,6 +1,20 @@
-// In dev, requests go to "/api/*" and Vite proxies them to the backend.
-// In production, set VITE_API_URL to the deployed backend origin.
-export const API_BASE = import.meta.env.VITE_API_URL || "/api";
+// Resolve where the API lives, in priority order:
+//   1. An HF Space variable `DOCUASK_API_URL` (read at runtime — set it in the
+//      Static Space settings so the URL can change without a rebuild).
+//   2. A build-time `VITE_API_URL` (baked in via frontend/.env.production).
+//   3. "/api" — local dev (Vite proxy) and the combined single-origin image.
+function resolveApiBase() {
+  if (typeof window !== "undefined") {
+    const fromHf = window.huggingface?.variables?.DOCUASK_API_URL;
+    if (fromHf) return fromHf.replace(/\/$/, "");
+  }
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL.replace(/\/$/, "");
+  }
+  return "/api";
+}
+
+export const API_BASE = resolveApiBase();
 
 /** Extract a human-readable message from a FastAPI error response. */
 async function errorDetail(res) {

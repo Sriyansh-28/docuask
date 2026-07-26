@@ -3,8 +3,9 @@ title: DocuAsk
 emoji: 📄
 colorFrom: green
 colorTo: gray
-sdk: docker
-app_port: 7860
+sdk: static
+app_build_command: cd frontend && npm ci && npm run build
+app_file: frontend/dist/index.html
 pinned: false
 license: mit
 ---
@@ -94,25 +95,45 @@ every push.
 | POST   | `/feedback`         | Attach 👍/👎 (`up`/`down`) to an interaction.       |
 | GET    | `/stats`            | Totals, median latency, thumbs-up rate, over-time. |
 
-## Deploy (Hugging Face Spaces)
+## Deploy
 
-The root [`Dockerfile`](./Dockerfile) builds a **single image** that serves the
-React frontend and the API from one origin (the API is mounted under `/api`), so
-you get one live URL with no CORS to configure.
+The frontend deploys to a **Hugging Face Static Space** and the API to any host
+that runs a Python web process. They're wired together with one Space variable —
+no rebuild needed to change the API URL.
 
-1. Create a new **Space** → **Docker** SDK (blank template).
-2. Push this repository to the Space (or connect the GitHub repo). The Space
-   reads the YAML front matter at the top of this README (`sdk: docker`,
-   `app_port: 7860`) and builds the root `Dockerfile`.
-3. Wait for the build; the app comes up at your Space URL. Paste that URL into
-   the **Live demo** link above.
+### 1. Frontend → Hugging Face Static Space
 
-Telemetry uses `/tmp/docuask.db` by default (resets on restart). To persist it,
-add HF **persistent storage** and set `DOCUASK_DB=/data/docuask.db` in the
-Space's variables.
+The README front matter (`sdk: static`) tells HF to run the
+`app_build_command` (`cd frontend && npm ci && npm run build`) and serve
+`frontend/dist`.
 
-**Keep the demo in sync automatically.** The
-[`sync-to-hf`](./.github/workflows/sync-to-hf.yml) workflow mirrors `main` to
+1. Create a new **Space** → **Static** SDK, owner `Sri-28`, name `docuask`.
+2. Push this repo to the Space (the [`sync-to-hf`](./.github/workflows/sync-to-hf.yml)
+   workflow does this automatically — see below).
+3. In the Space's **Settings → Variables**, add `DOCUASK_API_URL` set to your
+   deployed API's URL. The frontend reads it at runtime via
+   `window.huggingface.variables`, so you can change it without rebuilding.
+
+The Space serves at **https://sri-28-docuask.static.hf.space**.
+
+### 2. Backend → your host
+
+The API is a standard uvicorn app; deploy it however you like:
+
+- **Docker host** (Fly.io, Railway, …): build [`backend/Dockerfile`](./backend/Dockerfile)
+  — it honors `$PORT`.
+- **Native Python host** (Render web service, Railway, …): use
+  [`backend/Procfile`](./backend/Procfile) —
+  `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
+
+The Static Space origin (`https://sri-28-docuask.static.hf.space`) is already in
+the backend's default CORS allow-list; add more origins via the `CORS_ORIGINS`
+env var. Set `DOCUASK_DB` to a path on persistent storage to keep telemetry
+across restarts. See [`backend/.env.example`](./backend/.env.example).
+
+### Keep the demo in sync automatically
+
+The [`sync-to-hf`](./.github/workflows/sync-to-hf.yml) workflow mirrors `main` to
 your Space on every push. Configure it once under **Settings → Secrets and
 variables → Actions**:
 
@@ -122,9 +143,10 @@ variables → Actions**:
 
 Until `HF_TOKEN` is set the workflow no-ops, so it never fails the branch.
 
-> Prefer split hosting (e.g. static frontend + separate API)? Set
-> `VITE_API_URL` at frontend build time to the API origin and add that origin to
-> the backend's `CORS_ORIGINS`. See the `.env.example` files.
+> **One-origin alternative:** the root [`Dockerfile`](./Dockerfile) +
+> [`app/server.py`](./backend/app/server.py) build a single image that serves the
+> frontend and API together under one origin (API mounted at `/api`, no CORS).
+> Use this on any Docker host if you'd rather run one service than two.
 
 ## Project structure
 
@@ -156,7 +178,7 @@ docuask/
 - **Persistence:** SQLite (interaction telemetry)
 - **Tests:** pytest
 - **CI:** GitHub Actions (pytest + build on every push)
-- **Deploy:** Docker (single-image Hugging Face Space); Docker Compose locally
+- **Deploy:** Hugging Face Static Space (frontend) + any Python host (API); Docker Compose locally
 
 ## Roadmap
 

@@ -119,9 +119,10 @@ Goal: live URL + green CI + a README a recruiter can skim.
 - README: one-paragraph description, screenshot/GIF of the chat + dashboard,
   live demo link, run instructions, tech stack.
 
-> Note: this project deploys as a single-image **Hugging Face Space** (Docker),
-> which serves the frontend and API from one origin — replacing the split
-> Render/Vercel plan above.
+> Note: this project deploys the frontend to a **Hugging Face Static Space**
+> (HF builds `frontend/` and serves it) and the API to any Python host, wired by
+> the `DOCUASK_API_URL` Space variable. A single-image Docker option
+> (`Dockerfile` + `app/server.py`) is also included for one-origin hosting.
 
 **Acceptance criteria**
 

@@ -26,9 +26,13 @@ logger = logging.getLogger("docuask")
 # exhaust memory. 10 MB comfortably covers real documents.
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 
-# Comma-separated list of allowed origins. Defaults cover the Vite dev server
-# and a locally served production build. Override in deployment via env var.
-_DEFAULT_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173"
+# Comma-separated list of allowed origins. Defaults cover the Vite dev server,
+# a locally served production build, and the DocuAsk Hugging Face Static Space
+# (the deployed frontend). Override in deployment via the CORS_ORIGINS env var.
+_DEFAULT_ORIGINS = (
+    "http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,"
+    "https://sri-28-docuask.static.hf.space"
+)
 ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv("CORS_ORIGINS", _DEFAULT_ORIGINS).split(",")
