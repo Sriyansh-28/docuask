@@ -17,6 +17,9 @@ dist-ssr/
 *.local
 .vite/
 
+# Built frontend staged into the backend image (see root Dockerfile)
+backend/static/
+
 # Env & secrets
 .env
 .env.*

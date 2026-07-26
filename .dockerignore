@@ -1,0 +1,11 @@
+# Build context hygiene for the root (Hugging Face) image.
+**/node_modules
+**/dist
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.venv
+**/*.db
+.git
+.github
+docs

@@ -119,11 +119,17 @@ Goal: live URL + green CI + a README a recruiter can skim.
 - README: one-paragraph description, screenshot/GIF of the chat + dashboard,
   live demo link, run instructions, tech stack.
 
+> Note: this project deploys as a single-image **Hugging Face Space** (Docker),
+> which serves the frontend and API from one origin — replacing the split
+> Render/Vercel plan above.
+
 **Acceptance criteria**
 
-- [ ] CI badge is green on the default branch.
+- [x] CI badge is green on the default branch.
 - [ ] Live demo URL works end to end (upload → ask → feedback → dashboard).
-- [ ] README has a screenshot and the live link.
+      _Deploy config is ready (root `Dockerfile` + README front matter); awaiting
+      the owner creating the Hugging Face Space._
+- [x] README has a screenshot; live link is a placeholder until the Space is up.
 
 ## Guardrails
 
