@@ -33,6 +33,7 @@ export default function Chat({ doc, onReset }) {
           source: res.source_passage,
           interactionId: res.interaction_id,
           feedback: null,
+          generated: res.generated,
         }),
       ]);
     } catch (err) {
@@ -104,6 +105,11 @@ export default function Chat({ doc, onReset }) {
               <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-slate-100 px-4 py-2 text-sm text-slate-800">
                 {m.text}
               </div>
+              {m.generated && (
+                <span className="pl-1 text-[11px] font-medium text-emerald-600">
+                  ✨ AI answer · grounded in the source below
+                </span>
+              )}
               {m.source && (
                 <details className="max-w-[85%] rounded-lg bg-emerald-50 px-3 py-2 text-xs text-slate-600 ring-1 ring-emerald-100">
                   <summary className="cursor-pointer font-medium text-emerald-700">

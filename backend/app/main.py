@@ -16,6 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from . import __version__, db
+from .generate import generate_answer
 from .parsing import DocumentError, chunk_text, extract_pdf_text
 from .retrieval import DocumentIndex, best_sentence
 from .store import store
@@ -174,7 +175,14 @@ def ask(req: AskRequest) -> dict[str, object]:
     hits = doc.index.search(question, k=3)
     top_index, score = hits[0]
     passage = doc.chunks[top_index]
-    answer = best_sentence(passage, question)
+
+    # Prefer an LLM answer grounded in the top passages; fall back to the
+    # extractive best-sentence when no API key is configured or the call fails.
+    top_passages = [doc.chunks[i] for i, _ in hits]
+    answer = generate_answer(question, top_passages)
+    generated = answer is not None
+    if not generated:
+        answer = best_sentence(passage, question)
     latency_ms = int((time.perf_counter() - start) * 1000)
 
     interaction_id = db.log_interaction(doc.id, question, answer, latency_ms)
@@ -184,6 +192,7 @@ def ask(req: AskRequest) -> dict[str, object]:
         "document_id": doc.id,
         "question": question,
         "answer": answer,
+        "generated": generated,
         "source_passage": passage,
         "chunk_index": top_index,
         "score": round(score, 4),
