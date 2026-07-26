@@ -15,7 +15,7 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from . import __version__, db
+from . import __version__, db, generate
 from .generate import generate_answer, llm_available
 from .parsing import DocumentError, chunk_text, extract_pdf_text
 from .retrieval import DocumentIndex, best_sentence
@@ -59,7 +59,7 @@ app.add_middleware(
 def health() -> dict[str, object]:
     """Liveness probe. Also reports the running version and whether LLM answer
     generation is configured, which makes deploys easy to verify."""
-    return {"status": "ok", "version": __version__, "llm_enabled": llm_available()}
+    return {"status": "ok", "version": __version__, **generate.status()}
 
 
 def _looks_like_pdf(file: UploadFile) -> bool:

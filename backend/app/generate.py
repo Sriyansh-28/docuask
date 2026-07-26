@@ -53,9 +53,23 @@ _SYSTEM = (
 )
 
 
+# Last generation error (for diagnostics via /health). Trimmed, no secrets.
+last_error: str | None = None
+
+
 def llm_available() -> bool:
     """True when an LLM API key is configured."""
     return bool(os.getenv("LLM_API_KEY"))
+
+
+def status() -> dict[str, object]:
+    """Diagnostic snapshot surfaced on /health."""
+    return {
+        "llm_enabled": llm_available(),
+        "llm_provider": _provider,
+        "llm_model": _MODEL,
+        "llm_error": last_error,
+    }
 
 
 def generate_answer(question: str, passages: list[str]) -> str | None:
@@ -87,8 +101,11 @@ def generate_answer(question: str, passages: list[str]) -> str | None:
             ],
         )
     except Exception as exc:  # never let generation break /ask
+        global last_error
+        last_error = f"{type(exc).__name__}: {exc}"[:400]
         logger.warning("LLM generation failed, using extractive answer: %s", exc)
         return None
 
+    last_error = None
     text = (response.choices[0].message.content or "").strip()
     return text or None
