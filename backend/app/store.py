@@ -20,6 +20,9 @@ class Document:
     chunks: list[str]
     num_chars: int
     filename: str | None = None
+    # Retrieval index, built lazily on the first /ask and cached here. Kept out
+    # of repr/eq so the dataclass stays cheap to print and compare.
+    index: object | None = field(default=None, repr=False, compare=False)
 
     @property
     def num_chunks(self) -> int:

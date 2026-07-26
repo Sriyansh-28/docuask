@@ -84,9 +84,9 @@ Goal: the core question→answer experience.
 
 **Acceptance criteria**
 
-- [ ] Asking a question about an uploaded doc returns a relevant passage.
-- [ ] The source passage is visibly shown under each answer.
-- [ ] Empty question or unknown document id is handled gracefully.
+- [x] Asking a question about an uploaded doc returns a relevant passage.
+- [x] The source passage is visibly shown under each answer.
+- [x] Empty question or unknown document id is handled gracefully.
 
 ## Session 4 — Data-collection & feedback layer (the score-lifting part)
 

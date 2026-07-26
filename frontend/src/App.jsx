@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import DocumentUploader from "./DocumentUploader";
+import Chat from "./Chat";
 import { getHealth } from "./api";
 
 export default function App() {
   const [status, setStatus] = useState("loading");
+  const [doc, setDoc] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,13 +46,19 @@ export default function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-md px-6 py-10">
-        <h2 className="mb-1 text-lg font-semibold">Add a document</h2>
-        <p className="mb-5 text-sm text-slate-500">
-          Upload a PDF or paste text. We extract and index it so you can ask
-          questions about it.
-        </p>
-        <DocumentUploader onReady={(doc) => console.log("ready", doc)} />
+      <main className="mx-auto max-w-xl px-6 py-10">
+        {doc ? (
+          <Chat doc={doc} onReset={() => setDoc(null)} />
+        ) : (
+          <div className="mx-auto max-w-md">
+            <h2 className="mb-1 text-lg font-semibold">Add a document</h2>
+            <p className="mb-5 text-sm text-slate-500">
+              Upload a PDF or paste text. We extract and index it so you can ask
+              questions about it.
+            </p>
+            <DocumentUploader onReady={setDoc} />
+          </div>
+        )}
       </main>
     </div>
   );

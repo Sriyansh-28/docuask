@@ -11,9 +11,11 @@ import os
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from . import __version__
 from .parsing import DocumentError, chunk_text, extract_pdf_text
+from .retrieval import DocumentIndex, best_sentence
 from .store import store
 
 logger = logging.getLogger("docuask")
@@ -133,4 +135,42 @@ def get_document(document_id: str) -> dict[str, object]:
         "num_chunks": doc.num_chunks,
         "num_chars": doc.num_chars,
         "status": "ready",
+    }
+
+
+class AskRequest(BaseModel):
+    document_id: str
+    question: str
+
+
+@app.post("/ask")
+def ask(req: AskRequest) -> dict[str, object]:
+    """Answer a question about a stored document.
+
+    Runs hybrid retrieval over the document's chunks and returns the extractive
+    answer plus the source passage it came from, so the UI can show its work.
+    """
+    question = req.question.strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question must not be empty.")
+
+    doc = store.get(req.document_id)
+    if doc is None:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    # Build the index on first use and cache it on the document.
+    if doc.index is None:
+        doc.index = DocumentIndex(doc.chunks)
+
+    hits = doc.index.search(question, k=3)
+    top_index, score = hits[0]
+    passage = doc.chunks[top_index]
+
+    return {
+        "document_id": doc.id,
+        "question": question,
+        "answer": best_sentence(passage, question),
+        "source_passage": passage,
+        "chunk_index": top_index,
+        "score": round(score, 4),
     }

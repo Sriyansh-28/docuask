@@ -39,3 +39,14 @@ export async function uploadText(text) {
   if (!res.ok) throw new Error(await errorDetail(res));
   return res.json();
 }
+
+/** POST /ask — resolves to { answer, source_passage, score, ... }. */
+export async function askQuestion(documentId, question) {
+  const res = await fetch(`${API_BASE}/ask`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ document_id: documentId, question }),
+  });
+  if (!res.ok) throw new Error(await errorDetail(res));
+  return res.json();
+}
