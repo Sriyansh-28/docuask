@@ -40,12 +40,12 @@ all runnable with one command and deployable as a single container.
   the retrieval is transparent.
 - **Hybrid retrieval** — BM25 (`rank_bm25`) combined with a FAISS cosine search
   over TF-IDF vectors; deliberately lightweight, no heavyweight model.
-- **Optional LLM answers (free)** — set `LLM_API_KEY` (defaults to
-  [Groq](https://console.groq.com/keys), a free OpenAI-compatible API) and
-  answers become grounded summaries written from the retrieved passages (the
-  source passage is still shown). Point `LLM_BASE_URL`/`LLM_MODEL` at any
-  OpenAI-compatible provider. Without a key it falls back to an extractive
-  answer, so the app runs with no credentials and no cost.
+- **Optional LLM answers (free)** — set `LLM_PROVIDER` (`groq` | `gemini` |
+  `openrouter`) and `LLM_API_KEY`, and answers become grounded summaries written
+  from the retrieved passages (the source passage is still shown). All three are
+  free OpenAI-compatible providers with email/Google sign-in. Without a key it
+  falls back to an extractive answer, so the app runs with no credentials and no
+  cost.
 - **Feedback & telemetry** — each question is logged to SQLite with its measured
   latency; 👍/👎 feedback and a `/dashboard` page show total questions, median
   latency, and thumbs-up rate live from the DB.
@@ -134,10 +134,12 @@ The API is a standard uvicorn app. On **Railway**:
    [`backend/Dockerfile`](./backend/Dockerfile) (which installs faiss's
    `libgomp1` and honors Railway's injected `$PORT`).
 3. **Settings → Networking → Generate Domain** to get a public URL.
-4. *(Optional)* In the service **Variables**, add `LLM_API_KEY` (a free
-   [Groq](https://console.groq.com/keys) key) to enable LLM-written answers
-   (otherwise the API serves extractive answers). Add a **Volume** at `/data` +
-   `DOCUASK_DB=/data/docuask.db` to persist telemetry across restarts.
+4. *(Optional)* In the service **Variables**, set `LLM_PROVIDER` (e.g. `gemini`)
+   and `LLM_API_KEY` (a free key — Gemini's is at
+   [aistudio.google.com/apikey](https://aistudio.google.com/apikey), Google
+   sign-in) to enable LLM-written answers; otherwise the API serves extractive
+   answers. Add a **Volume** at `/data` + `DOCUASK_DB=/data/docuask.db` to
+   persist telemetry across restarts.
 5. Copy the public URL — you'll set it as `DOCUASK_API_URL` in the HF Space
    (step 3 above).
 

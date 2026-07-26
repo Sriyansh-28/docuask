@@ -8,8 +8,11 @@ the app runs with no network access and no credentials.
 
 Configure via env vars:
   LLM_API_KEY   – your free API key (required to enable generation)
-  LLM_BASE_URL  – OpenAI-compatible base URL (default: Groq)
-  LLM_MODEL     – model id (default: a current Groq Llama model)
+  LLM_PROVIDER  – preset base URL + model: "groq" (default), "gemini",
+                  or "openrouter". Sign-in for each is by email/Google, no
+                  GitHub required.
+  LLM_BASE_URL  – override the preset's OpenAI-compatible base URL
+  LLM_MODEL     – override the preset's model id
 
 The OpenAI SDK is imported lazily so the package is never a hard import-time
 dependency of the API.
@@ -22,10 +25,24 @@ import os
 
 logger = logging.getLogger("docuask")
 
-# Defaults target Groq's free, OpenAI-compatible API. Override any of these to
-# use a different free provider (e.g. Google Gemini's OpenAI endpoint).
-_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.groq.com/openai/v1")
-_MODEL = os.getenv("LLM_MODEL", "llama-3.3-70b-versatile")
+# Provider presets: (OpenAI-compatible base URL, default model). Pick one with
+# LLM_PROVIDER; override the pieces individually with LLM_BASE_URL / LLM_MODEL.
+_PRESETS = {
+    "groq": ("https://api.groq.com/openai/v1", "llama-3.3-70b-versatile"),
+    "gemini": (
+        "https://generativelanguage.googleapis.com/v1beta/openai/",
+        "gemini-2.0-flash",
+    ),
+    "openrouter": (
+        "https://openrouter.ai/api/v1",
+        "meta-llama/llama-3.3-70b-instruct:free",
+    ),
+}
+
+_provider = os.getenv("LLM_PROVIDER", "groq").lower()
+_preset_base, _preset_model = _PRESETS.get(_provider, _PRESETS["groq"])
+_BASE_URL = os.getenv("LLM_BASE_URL", _preset_base)
+_MODEL = os.getenv("LLM_MODEL", _preset_model)
 
 _SYSTEM = (
     "You are DocuAsk, a document question-answering assistant. Answer the "
