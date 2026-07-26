@@ -9,7 +9,7 @@ name: Sync to Hugging Face Space
 #                             (huggingface.co/settings/tokens). REQUIRED.
 #   - Variable HF_USERNAME  : Hugging Face username that owns the Space
 #                             (optional; defaults to "Sri-28").
-#   - Variable HF_SPACE     : the Space name (optional; defaults to "docuask").
+#   - Variable HF_SPACE     : the Space name (optional; defaults to "Docuask").
 #
 # Until HF_TOKEN is set the job no-ops, so this workflow never fails the branch.
 
@@ -50,7 +50,7 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_USERNAME: ${{ vars.HF_USERNAME || 'Sri-28' }}
-          HF_SPACE: ${{ vars.HF_SPACE || 'docuask' }}
+          HF_SPACE: ${{ vars.HF_SPACE || 'Docuask' }}
         run: |
           echo "Syncing to https://huggingface.co/spaces/${HF_USERNAME}/${HF_SPACE}"
           git push --force \

@@ -107,7 +107,8 @@ The README front matter (`sdk: static`) tells HF to run the
 `app_build_command` (`cd frontend && npm ci && npm run build`) and serve
 `frontend/dist`.
 
-1. Create a new **Space** → **Static** SDK, owner `Sri-28`, name `docuask`.
+1. Create a new **Space** → **Static** SDK, owner `Sri-28`, name `Docuask`
+   (the workflow default; case-sensitive on HF).
 2. Push this repo to the Space (the [`sync-to-hf`](./.github/workflows/sync-to-hf.yml)
    workflow does this automatically — see below).
 3. In the Space's **Settings → Variables**, add `DOCUASK_API_URL` set to your
@@ -145,7 +146,7 @@ your Space on every push. Configure it once under **Settings → Secrets and
 variables → Actions**:
 
 - Secret `HF_TOKEN` — a Hugging Face token with write scope. **This is the only
-  required step** (username defaults to `Sri-28`, Space to `docuask`).
+  required step** (username defaults to `Sri-28`, Space to `Docuask`).
 - Optionally override the `HF_USERNAME` / `HF_SPACE` variables.
 
 Until `HF_TOKEN` is set the workflow no-ops, so it never fails the branch.
