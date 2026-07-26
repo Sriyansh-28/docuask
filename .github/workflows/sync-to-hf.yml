@@ -30,12 +30,19 @@ jobs:
         id: check
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          EVENT: ${{ github.event_name }}
         run: |
-          if [ -z "$HF_TOKEN" ]; then
-            echo "HF_TOKEN is not set — skipping sync."
-            echo "ok=false" >> "$GITHUB_OUTPUT"
-          else
+          if [ -n "$HF_TOKEN" ]; then
+            echo "HF_TOKEN found (length ${#HF_TOKEN})."
             echo "ok=true" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT" = "workflow_dispatch" ]; then
+            # Manually triggered → the user wants to deploy, so fail loudly
+            # instead of a misleading green "success".
+            echo "::error title=HF_TOKEN missing::No secret named HF_TOKEN is visible to this workflow. Add it under Settings → Secrets and variables → Actions → the 'Secrets' tab (NOT 'Variables'), named exactly HF_TOKEN, value = a Hugging Face token with the *Write* role."
+            exit 1
+          else
+            echo "HF_TOKEN not set — skipping sync (automatic push)."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Checkout (full history)
