@@ -68,9 +68,9 @@ Goal: user uploads a PDF; backend extracts and chunks the text.
 
 **Acceptance criteria**
 
-- [ ] Uploading a normal PDF returns a document id and shows "ready" in the UI.
-- [ ] Uploading a broken/encrypted PDF shows a friendly error, backend logs it.
-- [ ] A pytest test covers the parse-failure path.
+- [x] Uploading a normal PDF returns a document id and shows "ready" in the UI.
+- [x] Uploading a broken/encrypted PDF shows a friendly error, backend logs it.
+- [x] A pytest test covers the parse-failure path.
 
 ## Session 3 — Retrieval + chat loop
 

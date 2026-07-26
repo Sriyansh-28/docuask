@@ -6,9 +6,10 @@ A full-stack **document Q&A web app**: upload a PDF (or paste text), ask
 questions in a chat box, and get answers with the **source passage** shown —
 plus a live feedback/telemetry dashboard.
 
-> **Status:** Session 1 skeleton — the browser fetches live data from the API
-> end to end. Upload, retrieval/chat, and the metrics dashboard land in the
-> following sessions (see [`PROJECT_SPEC.md`](./PROJECT_SPEC.md)).
+> **Status:** Session 2 — upload & parse flow is live. Drag in a PDF (or paste
+> text) and the backend extracts, chunks, and indexes it in memory, returning a
+> document id. Retrieval/chat and the metrics dashboard land in the following
+> sessions (see [`PROJECT_SPEC.md`](./PROJECT_SPEC.md)).
 
 ## Run it (one command)
 
