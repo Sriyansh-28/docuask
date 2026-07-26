@@ -116,20 +116,27 @@ The README front matter (`sdk: static`) tells HF to run the
 
 The Space serves at **https://sri-28-docuask.static.hf.space**.
 
-### 2. Backend → your host
+### 2. Backend → Railway
 
-The API is a standard uvicorn app; deploy it however you like:
+The API is a standard uvicorn app. On **Railway**:
 
-- **Docker host** (Fly.io, Railway, …): build [`backend/Dockerfile`](./backend/Dockerfile)
-  — it honors `$PORT`.
-- **Native Python host** (Render web service, Railway, …): use
-  [`backend/Procfile`](./backend/Procfile) —
-  `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
+1. **New Project → Deploy from GitHub repo** → select `docuask`.
+2. Open the service → **Settings → Root Directory** = `backend`. This makes
+   [`backend/railway.json`](./backend/railway.json) build
+   [`backend/Dockerfile`](./backend/Dockerfile) (which installs faiss's
+   `libgomp1` and honors Railway's injected `$PORT`).
+3. **Settings → Networking → Generate Domain** to get a public URL.
+4. *(Optional)* Add a **Volume** mounted at `/data` and a variable
+   `DOCUASK_DB=/data/docuask.db` so telemetry persists across restarts.
+5. Copy the public URL — you'll set it as `DOCUASK_API_URL` in the HF Space
+   (step 3 above).
 
 The Static Space origin (`https://sri-28-docuask.static.hf.space`) is already in
-the backend's default CORS allow-list; add more origins via the `CORS_ORIGINS`
-env var. Set `DOCUASK_DB` to a path on persistent storage to keep telemetry
-across restarts. See [`backend/.env.example`](./backend/.env.example).
+the backend's default CORS allow-list; add more via the `CORS_ORIGINS` env var.
+See [`backend/.env.example`](./backend/.env.example).
+
+> Other hosts work too: any Docker host can build `backend/Dockerfile`, and
+> native-Python hosts (Render, …) can use [`backend/Procfile`](./backend/Procfile).
 
 ### Keep the demo in sync automatically
 
