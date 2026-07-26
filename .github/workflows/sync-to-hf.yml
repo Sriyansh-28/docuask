@@ -6,8 +6,9 @@ name: Sync to Hugging Face Space
 #
 # One-time setup (GitHub → Settings → Secrets and variables → Actions):
 #   - Secret   HF_TOKEN     : a Hugging Face access token with write scope
-#                             (huggingface.co/settings/tokens).
-#   - Variable HF_USERNAME  : your Hugging Face username / org that owns the Space.
+#                             (huggingface.co/settings/tokens). REQUIRED.
+#   - Variable HF_USERNAME  : Hugging Face username that owns the Space
+#                             (optional; defaults to "Sri-28").
 #   - Variable HF_SPACE     : the Space name (optional; defaults to "docuask").
 #
 # Until HF_TOKEN is set the job no-ops, so this workflow never fails the branch.
@@ -48,13 +49,9 @@ jobs:
         if: steps.check.outputs.ok == 'true'
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_USERNAME: ${{ vars.HF_USERNAME }}
+          HF_USERNAME: ${{ vars.HF_USERNAME || 'Sri-28' }}
           HF_SPACE: ${{ vars.HF_SPACE || 'docuask' }}
         run: |
-          if [ -z "$HF_USERNAME" ]; then
-            echo "::error::Set the HF_USERNAME repository variable to your Hugging Face username."
-            exit 1
-          fi
           echo "Syncing to https://huggingface.co/spaces/${HF_USERNAME}/${HF_SPACE}"
           git push --force \
             "https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_USERNAME}/${HF_SPACE}.git" \

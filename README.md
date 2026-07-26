@@ -20,8 +20,8 @@ live dashboard. It's a small, end-to-end product loop: a React front end, a
 FastAPI back end, a lightweight retrieval layer, and a SQLite telemetry layer,
 all runnable with one command and deployable as a single container.
 
-🔗 **Live demo:** _deploy to a Hugging Face Space (see [Deploy](#deploy-hugging-face-spaces)) and paste the URL here_ →
-`https://huggingface.co/spaces/<your-username>/docuask`
+🔗 **Live demo:** [huggingface.co/spaces/Sri-28/docuask](https://huggingface.co/spaces/Sri-28/docuask)
+_(goes live once the Space is created — see [Deploy](#deploy-hugging-face-spaces))_
 
 ## Screenshots
 
@@ -116,9 +116,9 @@ Space's variables.
 your Space on every push. Configure it once under **Settings → Secrets and
 variables → Actions**:
 
-- Secret `HF_TOKEN` — a Hugging Face token with write scope.
-- Variable `HF_USERNAME` — your Hugging Face username (and `HF_SPACE` if the
-  Space isn't named `docuask`).
+- Secret `HF_TOKEN` — a Hugging Face token with write scope. **This is the only
+  required step** (username defaults to `Sri-28`, Space to `docuask`).
+- Optionally override the `HF_USERNAME` / `HF_SPACE` variables.
 
 Until `HF_TOKEN` is set the workflow no-ops, so it never fails the branch.
 
