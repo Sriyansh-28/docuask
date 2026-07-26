@@ -45,11 +45,12 @@ _BASE_URL = os.getenv("LLM_BASE_URL", _preset_base)
 _MODEL = os.getenv("LLM_MODEL", _preset_model)
 
 _SYSTEM = (
-    "You are DocuAsk, a document question-answering assistant. Answer the "
-    "user's question using ONLY the source passages provided from their "
-    "document. If the passages do not contain the answer, say so plainly "
-    "rather than guessing. Keep the answer concise — a few sentences at most. "
-    "Do not invent facts."
+    "You answer questions about a document using the provided excerpts. "
+    "Reply with a single short paragraph, in your own words, based only on the "
+    "excerpts. If the excerpts do not contain the answer, reply exactly: "
+    "\"The document doesn't seem to cover that.\" "
+    "Never copy the excerpts verbatim, never include labels, headings, page "
+    "numbers, or URLs, and never write new questions."
 )
 
 
@@ -86,8 +87,8 @@ def generate_answer(question: str, passages: list[str]) -> str | None:
         logger.warning("openai package not installed; using extractive answer")
         return None
 
-    context = "\n\n".join(f"[Passage {i + 1}]\n{p}" for i, p in enumerate(passages))
-    prompt = f"Source passages from the document:\n\n{context}\n\nQuestion: {question}"
+    excerpts = "\n\n".join(passages)
+    prompt = f'Excerpts:\n"""\n{excerpts}\n"""\n\nQuestion: {question}\n\nAnswer:'
 
     try:
         client = OpenAI(api_key=os.environ["LLM_API_KEY"], base_url=_BASE_URL)
