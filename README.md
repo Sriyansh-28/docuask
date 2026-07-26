@@ -21,8 +21,9 @@ live dashboard. It's a small, end-to-end product loop: a React front end, a
 FastAPI back end, a lightweight retrieval layer, and a SQLite telemetry layer,
 all runnable with one command and deployable as a single container.
 
-🔗 **Live demo:** [huggingface.co/spaces/Sri-28/docuask](https://huggingface.co/spaces/Sri-28/docuask)
-_(goes live once the Space is created — see [Deploy](#deploy-hugging-face-spaces))_
+🔗 **Live demo:** **[docuask-production-c732.up.railway.app](https://docuask-production-c732.up.railway.app)**
+— frontend + API from a single Railway container; dashboard at
+[`/#/dashboard`](https://docuask-production-c732.up.railway.app/#/dashboard).
 
 ## Screenshots
 

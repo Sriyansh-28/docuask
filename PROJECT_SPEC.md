@@ -119,18 +119,17 @@ Goal: live URL + green CI + a README a recruiter can skim.
 - README: one-paragraph description, screenshot/GIF of the chat + dashboard,
   live demo link, run instructions, tech stack.
 
-> Note: this project deploys the frontend to a **Hugging Face Static Space**
-> (HF builds `frontend/` and serves it) and the API to any Python host, wired by
-> the `DOCUASK_API_URL` Space variable. A single-image Docker option
-> (`Dockerfile` + `app/server.py`) is also included for one-origin hosting.
+> Deployed as the single-image combined app (`Dockerfile` + `app/server.py`) on
+> **Railway** — one container serving the React frontend and the FastAPI API
+> under `/api` from one origin. (A Hugging Face Static Space + separate API is
+> also supported; see the README.)
 
 **Acceptance criteria**
 
 - [x] CI badge is green on the default branch.
-- [ ] Live demo URL works end to end (upload → ask → feedback → dashboard).
-      _Deploy config is ready (root `Dockerfile` + README front matter); awaiting
-      the owner creating the Hugging Face Space._
-- [x] README has a screenshot; live link is a placeholder until the Space is up.
+- [x] Live demo URL works end to end (upload → ask → feedback → dashboard) —
+      verified against https://docuask-production-c732.up.railway.app.
+- [x] README has a screenshot and the live link.
 
 ## Guardrails
 
