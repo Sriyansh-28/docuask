@@ -8,12 +8,14 @@ Retrieval and telemetry endpoints are added in later sessions.
 
 import logging
 import os
+import time
+from typing import Literal
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from . import __version__
+from . import __version__, db
 from .parsing import DocumentError, chunk_text, extract_pdf_text
 from .retrieval import DocumentIndex, best_sentence
 from .store import store
@@ -158,19 +160,51 @@ def ask(req: AskRequest) -> dict[str, object]:
     if doc is None:
         raise HTTPException(status_code=404, detail="Document not found.")
 
-    # Build the index on first use and cache it on the document.
+    # Build the index on first use and cache it on the document. Index
+    # construction is one-off setup, so it is excluded from the measured
+    # answer latency.
     if doc.index is None:
         doc.index = DocumentIndex(doc.chunks)
 
+    start = time.perf_counter()
     hits = doc.index.search(question, k=3)
     top_index, score = hits[0]
     passage = doc.chunks[top_index]
+    answer = best_sentence(passage, question)
+    latency_ms = int((time.perf_counter() - start) * 1000)
+
+    interaction_id = db.log_interaction(doc.id, question, answer, latency_ms)
 
     return {
+        "interaction_id": interaction_id,
         "document_id": doc.id,
         "question": question,
-        "answer": best_sentence(passage, question),
+        "answer": answer,
         "source_passage": passage,
         "chunk_index": top_index,
         "score": round(score, 4),
+        "latency_ms": latency_ms,
     }
+
+
+class FeedbackRequest(BaseModel):
+    interaction_id: str
+    feedback: Literal["up", "down"]
+
+
+@app.post("/feedback")
+def feedback(req: FeedbackRequest) -> dict[str, object]:
+    """Attach a 👍/👎 rating to a previously logged interaction."""
+    if not db.set_feedback(req.interaction_id, req.feedback):
+        raise HTTPException(status_code=404, detail="Interaction not found.")
+    return {
+        "status": "ok",
+        "interaction_id": req.interaction_id,
+        "feedback": req.feedback,
+    }
+
+
+@app.get("/stats")
+def stats() -> dict[str, object]:
+    """Aggregate telemetry for the dashboard: totals, latency, thumbs-up rate."""
+    return db.get_stats()

@@ -40,7 +40,7 @@ export async function uploadText(text) {
   return res.json();
 }
 
-/** POST /ask — resolves to { answer, source_passage, score, ... }. */
+/** POST /ask — resolves to { interaction_id, answer, source_passage, ... }. */
 export async function askQuestion(documentId, question) {
   const res = await fetch(`${API_BASE}/ask`, {
     method: "POST",
@@ -48,5 +48,23 @@ export async function askQuestion(documentId, question) {
     body: JSON.stringify({ document_id: documentId, question }),
   });
   if (!res.ok) throw new Error(await errorDetail(res));
+  return res.json();
+}
+
+/** POST /feedback — attach a 👍/👎 ("up" | "down") to an interaction. */
+export async function sendFeedback(interactionId, feedback) {
+  const res = await fetch(`${API_BASE}/feedback`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ interaction_id: interactionId, feedback }),
+  });
+  if (!res.ok) throw new Error(await errorDetail(res));
+  return res.json();
+}
+
+/** GET /stats — dashboard metrics. */
+export async function getStats() {
+  const res = await fetch(`${API_BASE}/stats`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }

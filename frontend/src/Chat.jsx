@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { askQuestion } from "./api";
+import { askQuestion, sendFeedback } from "./api";
 
 // A single turn. Assistant turns carry the source passage so it can be shown
 // under the answer. `pending` marks the in-flight assistant bubble.
@@ -29,12 +29,30 @@ export default function Chat({ doc, onReset }) {
       const res = await askQuestion(doc.document_id, q);
       setMessages((m) => [
         ...m,
-        makeMessage("assistant", res.answer, { source: res.source_passage }),
+        makeMessage("assistant", res.answer, {
+          source: res.source_passage,
+          interactionId: res.interaction_id,
+          feedback: null,
+        }),
       ]);
     } catch (err) {
       setMessages((m) => [...m, makeMessage("error", err.message)]);
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function rate(messageId, interactionId, value) {
+    // Optimistically reflect the choice; revert if the request fails.
+    setMessages((m) =>
+      m.map((msg) => (msg.id === messageId ? { ...msg, feedback: value } : msg)),
+    );
+    try {
+      await sendFeedback(interactionId, value);
+    } catch {
+      setMessages((m) =>
+        m.map((msg) => (msg.id === messageId ? { ...msg, feedback: null } : msg)),
+      );
     }
   }
 
@@ -94,6 +112,29 @@ export default function Chat({ doc, onReset }) {
                   <p className="mt-1 whitespace-pre-wrap leading-relaxed">{m.source}</p>
                 </details>
               )}
+              {m.interactionId && (
+                <div className="flex items-center gap-1.5 pl-1">
+                  <span className="text-xs text-slate-400">Helpful?</span>
+                  <FeedbackButton
+                    active={m.feedback === "up"}
+                    dimmed={m.feedback === "down"}
+                    activeClass="bg-emerald-100 text-emerald-700 ring-emerald-200"
+                    label="Yes, helpful"
+                    onClick={() => rate(m.id, m.interactionId, "up")}
+                  >
+                    👍
+                  </FeedbackButton>
+                  <FeedbackButton
+                    active={m.feedback === "down"}
+                    dimmed={m.feedback === "up"}
+                    activeClass="bg-red-100 text-red-700 ring-red-200"
+                    label="Not helpful"
+                    onClick={() => rate(m.id, m.interactionId, "down")}
+                  >
+                    👎
+                  </FeedbackButton>
+                </div>
+              )}
             </div>
           );
         })}
@@ -133,5 +174,23 @@ function Dot({ delay = "0ms" }) {
       className="inline-block h-2 w-2 animate-bounce rounded-full bg-slate-400"
       style={{ animationDelay: delay }}
     />
+  );
+}
+
+function FeedbackButton({ active, dimmed, activeClass, label, onClick, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      aria-pressed={active}
+      className={`rounded-md px-1.5 py-0.5 text-sm ring-1 transition ${
+        active
+          ? activeClass
+          : `ring-transparent hover:bg-slate-100 ${dimmed ? "opacity-40" : ""}`
+      }`}
+    >
+      {children}
+    </button>
   );
 }

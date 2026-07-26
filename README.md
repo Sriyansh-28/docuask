@@ -6,11 +6,12 @@ A full-stack **document Q&A web app**: upload a PDF (or paste text), ask
 questions in a chat box, and get answers with the **source passage** shown —
 plus a live feedback/telemetry dashboard.
 
-> **Status:** Session 3 — the chat loop is live. Upload a PDF (or paste text),
-> then ask questions in a chat box; each answer shows the source passage it came
-> from. Retrieval is a lightweight BM25 + FAISS (TF-IDF) hybrid. The
-> feedback/telemetry dashboard lands in the next sessions (see
-> [`PROJECT_SPEC.md`](./PROJECT_SPEC.md)).
+> **Status:** Session 4 — the feedback/telemetry layer is live. Every question
+> is logged to SQLite with its measured latency, answers carry 👍/👎 buttons,
+> and a `/#/dashboard` page shows total questions, median latency, and
+> thumbs-up rate live from the DB, plus a questions-over-time bar. Retrieval is
+> a lightweight BM25 + FAISS (TF-IDF) hybrid. Final polish/deploy is the last
+> session (see [`PROJECT_SPEC.md`](./PROJECT_SPEC.md)).
 
 ## Run it (one command)
 

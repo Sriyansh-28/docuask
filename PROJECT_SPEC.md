@@ -103,9 +103,9 @@ metrics.
 
 **Acceptance criteria**
 
-- [ ] Each question persists with its real latency.
-- [ ] Feedback buttons update the record and reflect in `/stats`.
-- [ ] Dashboard page renders the three metrics live from the DB.
+- [x] Each question persists with its real latency.
+- [x] Feedback buttons update the record and reflect in `/stats`.
+- [x] Dashboard page renders the three metrics live from the DB.
 
 ## Session 5 — Polish, test, deploy
 

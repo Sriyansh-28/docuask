@@ -4,6 +4,12 @@ services:
       context: ./backend
     ports:
       - "8000:8000"
+    environment:
+      # Keep the telemetry DB on a mounted volume so interactions survive
+      # container restarts.
+      DOCUASK_DB: /data/docuask.db
+    volumes:
+      - api-data:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -17,3 +23,6 @@ services:
       - "5173:80"
     depends_on:
       - api
+
+volumes:
+  api-data:
