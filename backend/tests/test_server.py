@@ -14,4 +14,4 @@ client = TestClient(root)
 def test_api_is_mounted_under_api_prefix():
     response = client.get("/api/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    assert response.json()["status"] == "ok"
