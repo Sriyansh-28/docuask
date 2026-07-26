@@ -111,6 +111,17 @@ Telemetry uses `/tmp/docuask.db` by default (resets on restart). To persist it,
 add HF **persistent storage** and set `DOCUASK_DB=/data/docuask.db` in the
 Space's variables.
 
+**Keep the demo in sync automatically.** The
+[`sync-to-hf`](./.github/workflows/sync-to-hf.yml) workflow mirrors `main` to
+your Space on every push. Configure it once under **Settings → Secrets and
+variables → Actions**:
+
+- Secret `HF_TOKEN` — a Hugging Face token with write scope.
+- Variable `HF_USERNAME` — your Hugging Face username (and `HF_SPACE` if the
+  Space isn't named `docuask`).
+
+Until `HF_TOKEN` is set the workflow no-ops, so it never fails the branch.
+
 > Prefer split hosting (e.g. static frontend + separate API)? Set
 > `VITE_API_URL` at frontend build time to the API origin and add that origin to
 > the backend's `CORS_ORIGINS`. See the `.env.example` files.

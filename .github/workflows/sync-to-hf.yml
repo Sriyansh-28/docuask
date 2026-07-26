@@ -1,0 +1,61 @@
+name: Sync to Hugging Face Space
+
+# Mirrors the default branch to a Hugging Face Space on every push, so the live
+# demo tracks main. The Space builds the root Dockerfile (see README front
+# matter).
+#
+# One-time setup (GitHub → Settings → Secrets and variables → Actions):
+#   - Secret   HF_TOKEN     : a Hugging Face access token with write scope
+#                             (huggingface.co/settings/tokens).
+#   - Variable HF_USERNAME  : your Hugging Face username / org that owns the Space.
+#   - Variable HF_SPACE     : the Space name (optional; defaults to "docuask").
+#
+# Until HF_TOKEN is set the job no-ops, so this workflow never fails the branch.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: sync-to-hf
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for HF token
+        id: check
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "HF_TOKEN is not set — skipping sync."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout (full history)
+        if: steps.check.outputs.ok == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Push to Hugging Face Space
+        if: steps.check.outputs.ok == 'true'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_USERNAME: ${{ vars.HF_USERNAME }}
+          HF_SPACE: ${{ vars.HF_SPACE || 'docuask' }}
+        run: |
+          if [ -z "$HF_USERNAME" ]; then
+            echo "::error::Set the HF_USERNAME repository variable to your Hugging Face username."
+            exit 1
+          fi
+          echo "Syncing to https://huggingface.co/spaces/${HF_USERNAME}/${HF_SPACE}"
+          git push --force \
+            "https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_USERNAME}/${HF_SPACE}.git" \
+            HEAD:main
